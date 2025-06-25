@@ -24,15 +24,19 @@ export const uploadToDrive = async (blob: Blob) => {
     )
 
     const videoFile = new File(
-        [blob], 
-        `${timestamp.toString()}_${condition}_examen.webm`, 
+        [blob],
+        `${timestamp.toString()}_${condition}_examen.webm`,
         { type: "video/webm" }
     )
 
     formData.append("file", videoFile)
     formData.append("file", jsonFile)
 
-    const res = await fetch("/api/upload", {
+    const endpoint = process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/api/upload"
+        : process.env.NEXT_PUBLIC_UPLOAD_ENDPOINT!;
+
+    const res = await fetch(endpoint, {
         method: "POST",
         body: formData
     })

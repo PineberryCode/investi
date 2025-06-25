@@ -9,6 +9,7 @@ import { tmpdir } from "os";
 const writeFileAsync = promisify(writeFile);
 
 export async function POST(req: NextRequest) {
+    console.log("🔍 Content-Type recibido:", req.headers.get("content-type"));
     const formData = await req.formData();
 
     const files = formData.getAll("file") as File[];
