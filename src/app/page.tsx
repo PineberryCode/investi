@@ -6,13 +6,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { BadgeInfo } from "lucide-react";
+import { BadgeInfo, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   const [accepted, setAccepted] = useState(false)
   const [selected, setSelected] = useState<string>("")
+  const [loading, setLoading] = useState(false)
 
   function handleAcceptation(data: boolean) {
     setAccepted(data)
@@ -69,7 +70,7 @@ export default function Home() {
         </CardContent>
         <CardFooter className="grid grid-cols-1 mx-10">
           <div className="flex items-center gap-3">
-            <Checkbox id="terms" className="border-2 cursor-pointer" onCheckedChange={(checked: boolean) => {handleAcceptation(checked)}} />
+            <Checkbox id="terms" className="border-2 cursor-pointer" onCheckedChange={(checked: boolean) => { handleAcceptation(checked) }} />
             <Label htmlFor="terms" className="cursor-pointer">He leído el aviso y cumplo con las condiciones mencionadas.</Label>
           </div>
           <div className="grid grid-rows-[auto_auto] justify-start mt-2">
@@ -92,26 +93,30 @@ export default function Home() {
               <ToggleGroupItem className="border-4 cursor-pointer bg-white text-black 
              data-[state=on]:bg-blue-600 data-[state=on]:text-white
              hover:bg-gray-100 hover:text-black
-             focus:outline-2 focus:outline-blue-600 focus:outline-offset-2 active:bg-blue-700" 
-              value="st" aria-label="sn">
+             focus:outline-2 focus:outline-blue-600 focus:outline-offset-2 active:bg-blue-700"
+                value="st" aria-label="sn">
                 Sin trampa
               </ToggleGroupItem>
               <ToggleGroupItem className="border-4 cursor-pointer bg-white text-black 
              data-[state=on]:bg-blue-600 data-[state=on]:text-white
              hover:bg-gray-100 hover:text-black
-             focus:outline-2 focus:outline-blue-600 focus:outline-offset-2 active:bg-blue-700" 
-              value="ct" aria-label="cn">
+             focus:outline-2 focus:outline-blue-600 focus:outline-offset-2 active:bg-blue-700"
+                value="ct" aria-label="cn">
                 Con trampa
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
           <div className="flex justify-center mt-5">
             <Button
-              onClick={() => redirectToCalibration()}
+              onClick={() => {
+                setLoading(true)
+                redirectToCalibration()
+              }}
               className="cursor-pointer"
-              disabled={!accepted || selected === ""}
+              disabled={!accepted || selected === "" || loading}
             >
-              Ingresar al examen
+              {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+              Iniciar examen
             </Button>
           </div>
         </CardFooter>

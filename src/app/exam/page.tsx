@@ -37,11 +37,11 @@ export default function Exam() {
             try {
                 await uploadToDrive(blob);
                 toast.success("🎉 Subido al sistema correctamente, puede cerrar esta pestaña.", {
-                    duration: 5000
+                    duration: 50000
                 });
             } catch (e) {
                 toast.error(`❌ Error al subir los datos al sistema: ${e}`, {
-                    duration: 5000
+                    duration: 50000
                 });
             }
 

@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export default function Calibration() {
     const [canContinue, setCanContinue] = useState(false)
     const gazeData = useRef<{ x: number; y: number; timestamp: number }[]>([]);
     const [clicks, setClicks] = useState(0);
     const stream = useRef<MediaStream | null>(null);
+    const [loading, setLoading] = useState(false)
 
     const removeWebGazerElements = () => {
         const ids = [
@@ -110,6 +112,7 @@ export default function Calibration() {
             {canContinue && (
                 <Button
                     onClick={() => {
+                        setLoading(true)
                         setCanContinue(false);
                         setTimeout(() => {
                             saveCalibrationData();
@@ -117,7 +120,9 @@ export default function Calibration() {
                         }, 300);
                     }}
                     className="bg-green-600 text-white mt-6 cursor-pointer"
+                    disabled={loading}
                 >
+                    {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                     Iniciar examen
                 </Button>
             )}
