@@ -6,12 +6,6 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { tmpdir } from "os";
 
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
-
 const writeFileAsync = promisify(writeFile);
 
 export async function POST(req: NextRequest) {
