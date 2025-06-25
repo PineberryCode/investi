@@ -36,10 +36,18 @@ export const uploadToDrive = async (blob: Blob) => {
         ? "http://localhost:3000/api/upload"
         : process.env.NEXT_PUBLIC_UPLOAD_ENDPOINT!;
 
+    console.log("Blob size:", blob.size);
+
     const res = await fetch(endpoint, {
         method: "POST",
         body: formData
     })
+
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Upload failed:", res.status, errorText);
+        throw new Error("Upload failed");
+    }
 
     const result = await res.json()
     console.log("Files uploaded", result);
