@@ -60,7 +60,7 @@ export default function Exam() {
     }
 
     useEffect(() => {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then((mediaStream) => {
+        navigator.mediaDevices.getUserMedia({ video: { width: {ideal: 320}, height: {ideal: 240}, frameRate: {ideal: 15} }, audio: false }).then((mediaStream) => {
             stream.current = mediaStream;
 
             mediaRecorder.current = new MediaRecorder(mediaStream, {
