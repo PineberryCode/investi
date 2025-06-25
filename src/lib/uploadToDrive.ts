@@ -20,7 +20,7 @@ export const uploadToDrive = async (blob: Blob) => {
     const jsonFile = new File(
         [jsonBlob],
         `${timestamp.toString()}_${condition}_gaze.json`,
-        { type: "applition/json" }
+        { type: "application/json" }
     )
 
     const videoFile = new File(
