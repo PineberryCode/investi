@@ -1,57 +1,46 @@
-import { google } from "googleapis";
-import { writeFile, createReadStream } from "fs";
 import { NextRequest, NextResponse } from "next/server";
-import { promisify } from "util";
-import path from "path";
-import { v4 as uuidv4 } from "uuid";
-import { tmpdir } from "os";
-
-const writeFileAsync = promisify(writeFile);
+import nodemailer from "nodemailer";
 
 export async function POST(req: NextRequest) {
-    console.log("🔍 Content-Type recibido:", req.headers.get("content-type"));
     const formData = await req.formData();
-
     const files = formData.getAll("file") as File[];
+
     if (!files.length) {
         return NextResponse.json({ error: "No se recibieron archivos." }, { status: 400 });
     }
 
-    const credentialsBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_BASE64!;
-    const credentialsJSON = JSON.parse(
-        Buffer.from(credentialsBase64, "base64").toString("utf-8")
+    const attachments = await Promise.all(
+        files.map(async (file) => {
+            const buffer = Buffer.from(await file.arrayBuffer());
+            return {
+                filename: file.name,
+                content: buffer,
+                contentType: file.type
+            };
+        })
     );
 
-    const auth = new google.auth.GoogleAuth({
-        credentials: credentialsJSON,
-        scopes: ["https://www.googleapis.com/auth/drive.file"],
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_APP_PASSWORD
+        }
     });
 
-    const drive = google.drive({ version: "v3", auth });
-    const folderId = process.env.GOOGLE_DRIVE_ID!;
-    const uploaded = [];
+    const mailOptions = {
+        from: process.env.GMAIL_USER,
+        to: process.env.RECEIVER_EMAIL || process.env.GMAIL_USER,
+        subject: "Archivos del usuario (vídeo + gaze)",
+        text: "Adjunto encontrarás los archivos grabados.",
+        attachments
+    };
 
-    for (const file of files) {
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const tmpPath = path.join(tmpdir(), uuidv4());
-
-        await writeFileAsync(tmpPath, buffer);
-
-        const res = await drive.files.create({
-            requestBody: {
-                name: file.name,
-                mimeType: file.type,
-                parents: [folderId],
-            },
-            media: {
-                mimeType: file.type,
-                body: createReadStream(tmpPath),
-            },
-        });
-
-        uploaded.push(res.data);
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        return NextResponse.json({ success: true, info });
+    } catch (error: any) {
+        console.error("Error al enviar el correo:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
-    return NextResponse.json({ success: true, uploaded });
 }
