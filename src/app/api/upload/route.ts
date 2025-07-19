@@ -39,8 +39,13 @@ export async function POST(req: NextRequest) {
     try {
         const info = await transporter.sendMail(mailOptions);
         return NextResponse.json({ success: true, info });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error al enviar el correo:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+
+        if (error instanceof Error) {
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        } else {
+            return NextResponse.json({ error: "An unknown error occurred" }, { status: 500 });
+        }
     }
 }
